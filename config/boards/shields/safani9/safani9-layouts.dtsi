@@ -1,0 +1,110 @@
+#include <dt-bindings/zmk/matrix_transform.h>
+
+/ {
+    chosen {
+        zmk,kscan = &kscan0;
+        zmk,matrix-transform = &default_transform;
+        zmk,physical-layout = &physical_layout0;
+        zephyr,display = &oled;
+    };
+
+    /*
+     * Physical key order:
+     * K1 K2 K3
+     * K4 K5 K6
+     * K7 K8 K9
+     * SW
+     */
+    default_transform: keymap_transform {
+        compatible = "zmk,matrix-transform";
+        rows = <4>;
+        columns = <3>;
+
+        map = <
+            RC(0,0) RC(0,1) RC(0,2)
+            RC(1,0) RC(1,1) RC(1,2)
+            RC(2,0) RC(2,1) RC(2,2)
+            RC(3,0)
+        >;
+    };
+
+    physical_layout0: physical_layout {
+        compatible = "zmk,physical-layout";
+        display-name = "SAFANI 3x3";
+        kscan = <&kscan0>;
+        transform = <&default_transform>;
+    };
+
+    /*
+     * ROW2COL:
+     * Rows are driven outputs.
+     * Columns are inputs with pull-down.
+     */
+    kscan0: kscan {
+        compatible = "zmk,kscan-gpio-matrix";
+        label = "SAFANI_KSCAN";
+        diode-direction = "row2col";
+        wakeup-source;
+
+        row-gpios =
+            <&gpio0 11 GPIO_ACTIVE_HIGH>, /* P0.11 Row 0 */
+            <&gpio1 4  GPIO_ACTIVE_HIGH>, /* P1.04 Row 1 */
+            <&gpio1 6  GPIO_ACTIVE_HIGH>, /* P1.06 Row 2 */
+            <&gpio1 13 GPIO_ACTIVE_HIGH>; /* P1.13 Row 3 / encoder SW */
+
+        col-gpios =
+            <&gpio0 9  (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>, /* P0.09 */
+            <&gpio0 10 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>, /* P0.10 */
+            <&gpio1 11 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>; /* P1.11 */
+
+        debounce-press-ms = <5>;
+        debounce-release-ms = <5>;
+    };
+
+    /* EC11 rotation sensor */
+    encoder: encoder {
+        compatible = "alps,ec11";
+        a-gpios = <&gpio0 2 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>; /* P0.02 */
+        b-gpios = <&gpio0 29  (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>; /* P0.29 */
+        steps = <80>;
+        status = "okay";
+    };
+
+    sensors: sensors {
+        compatible = "zmk,keymap-sensors";
+        sensors = <&encoder>;
+        triggers-per-rotation = <20>;
+    };
+};
+
+/*
+ * P0.09 and P0.10 are NFC-capable pins on nRF52840.
+ * This UICR setting enables them as normal GPIOs.
+ */
+&uicr {
+    nfct-pins-as-gpios;
+};
+
+/* Nice!Nano V2 I2C0: SDA=P0.17, SCL=P0.20 */
+&pro_micro_i2c {
+    status = "okay";
+
+    oled: ssd1306@3c {
+        compatible = "solomon,ssd1306fb";
+        reg = <0x3c>;
+        width = <128>;
+        height = <32>;
+
+        segment-offset = <0>;
+        page-offset = <0>;
+        display-offset = <0>;
+        multiplex-ratio = <31>;
+
+        segment-remap;
+        com-invdir;
+        com-sequential;
+        prechargep = <0x22>;
+
+        status = "okay";
+    };
+};

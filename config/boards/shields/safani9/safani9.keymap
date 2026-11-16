@@ -1,0 +1,78 @@
+#include <behaviors.dtsi>
+#include <dt-bindings/zmk/keys.h>
+
+/* Definisi nomor layer */
+#define DEF 0
+#define LWR 1
+#define RSE 2
+#define ADJ 3
+
+/ {
+    keymap {
+        compatible = "zmk,keymap";
+
+        /* ================= LAYER 0 (SAFANI) ================= */
+        default_layer {
+            display-name = "SAFANI";
+
+            bindings = <
+                &none                &kp UP_ARROW       &none
+                &kp LEFT_ARROW       &kp C_PLAY_PAUSE   &kp RIGHT_ARROW
+                &none                &kp DOWN_ARROW     &none
+                &to LWR     /* Tekan encoder -> pindah ke Layer 1 */
+            >;
+
+            sensor-bindings = <
+                &inc_dec_kp C_VOL_UP C_VOL_DN
+            >;
+        };
+
+        /* ================= LAYER 1 (LOWER) ================= */
+        lower_layer {
+            display-name = "MEDIA";
+
+            bindings = <
+                &kp 0           &kp C_VOL_UP      &kp 2
+                &kp C_PREV      &kp C_PLAY_PAUSE  &kp C_NEXT
+                &kp 5           &kp C_VOL_DN      &kp 8
+                &to RSE     /* Tekan encoder -> pindah ke Layer 2 */
+            >;
+
+            sensor-bindings = <
+                &inc_dec_kp C_VOL_UP C_VOL_DN
+            >;
+        };
+
+        /* ================= LAYER 2 (RAISE) ================= */
+        raise_layer {
+            display-name = "NUM";
+
+            bindings = <
+                &kp 1    &kp 2      &kp 3
+                &kp 4    &kp 5      &kp 6
+                &kp 7    &kp 8      &kp 9
+                &to ADJ     /* Tekan encoder -> pindah ke Layer 3 */
+            >;
+
+            sensor-bindings = <
+                &inc_dec_kp C_VOL_UP C_VOL_DN
+            >;
+        };
+
+        /* ================= LAYER 3 (ADJUST) ================= */
+        adjust_layer {
+            display-name = "WINDOWS";
+
+            bindings = <
+                &none       &kp K_POWER       &sys_reset
+                &none       &kp C_POWER       &none
+                &none       &none       &none
+                &to DEF     /* Tekan encoder -> kembali ke Layer 0 (SAFANI) */
+            >;
+
+            sensor-bindings = <
+                &inc_dec_kp C_VOL_UP C_VOL_DN
+            >;
+        };
+    };
+};
