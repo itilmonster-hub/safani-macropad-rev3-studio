@@ -19,7 +19,26 @@
             RC(2,0) RC(2,1) RC(2,2)
         >;
     };
+    kscan0: kscan {
+        compatible = "zmk,kscan-gpio-matrix";
+        label = "SAFANI_KSCAN";
+        diode-direction = "row2col";
+        wakeup-source;
 
+        row-gpios =
+            <&gpio0 11 GPIO_ACTIVE_HIGH>, /* P0.11 Row 0 */
+            <&gpio1 4  GPIO_ACTIVE_HIGH>, /* P1.04 Row 1 */
+            <&gpio1 6  GPIO_ACTIVE_HIGH>, /* P1.06 Row 2 */
+            <&gpio1 13 GPIO_ACTIVE_HIGH>; /* P1.13 Row 3 / encoder SW */
+
+        col-gpios =
+            <&gpio0 9  (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>, /* P0.09 */
+            <&gpio0 10 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>, /* P0.10 */
+            <&gpio1 11 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>; /* P1.11 */
+
+        debounce-press-ms = <5>;
+        debounce-release-ms = <5>;
+    };
     physical_layout0: physical_layout_0 {
         compatible = "zmk,physical-layout";
         display-name = "Safani9 Top-Left Encoder Layout";
